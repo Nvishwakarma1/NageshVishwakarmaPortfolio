@@ -16,8 +16,13 @@ export default function ContactFrame() {
   const [currentInput, setCurrentInput] = useState('');
   const inputRef = useRef(null);
   const terminalEndRef = useRef(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
     if (inputRef.current) {
       inputRef.current.focus();
     }
