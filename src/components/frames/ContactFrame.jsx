@@ -17,6 +17,7 @@ export default function ContactFrame() {
   const inputRef = useRef(null);
   const terminalEndRef = useRef(null);
   const isFirstRender = useRef(true);
+  const isFirstHistoryRender = useRef(true);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -29,6 +30,10 @@ export default function ContactFrame() {
   }, [step]);
 
   useEffect(() => {
+    if (isFirstHistoryRender.current) {
+      isFirstHistoryRender.current = false;
+      return;
+    }
     if (terminalEndRef.current) {
       terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
