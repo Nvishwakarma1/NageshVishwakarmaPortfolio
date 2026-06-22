@@ -16,28 +16,25 @@ export default function ContactFrame() {
   const [currentInput, setCurrentInput] = useState('');
   const inputRef = useRef(null);
   const terminalEndRef = useRef(null);
-  const isFirstRender = useRef(true);
   const isFirstHistoryRender = useRef(true);
 
+  // ✅ FIX: Keep terminal focus bound exclusively to user interaction steps (prevents jump on mount)
   useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-      return;
-    }
-    if (inputRef.current) {
+    if (step > 0 && inputRef.current) {
       inputRef.current.focus();
     }
   }, [step]);
 
+  // ✅ FIX: Prevent terminal box auto-scrolling until the user actively communicates
   useEffect(() => {
     if (isFirstHistoryRender.current) {
       isFirstHistoryRender.current = false;
       return;
     }
-    if (terminalEndRef.current) {
+    if (step > 0 && terminalEndRef.current) {
       terminalEndRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [history]);
+  }, [history, step]);
 
   const handleCommandSubmit = (e) => {
     e.preventDefault();
@@ -128,8 +125,11 @@ export default function ContactFrame() {
         </div>
       </div>
 
-      {/* Terminal View Container */}
-      <div className="bg-[#111111] border-2 border-border-base shadow-[3px_3px_0px_0px_var(--border-color)] p-4 font-mono text-xs md:text-sm text-[#e2e8f0] min-h-[250px] max-h-[300px] overflow-y-auto flex flex-col gap-2">
+      {/* Terminal View Container - Added cursor-text and onClick behavior */}
+      <div 
+        onClick={() => inputRef.current?.focus()}
+        className="bg-[#111111] border-2 border-border-base shadow-[3px_3px_0px_0px_var(--border-color)] p-4 font-mono text-xs md:text-sm text-[#e2e8f0] min-h-[250px] max-h-[300px] overflow-y-auto flex flex-col gap-2 cursor-text"
+      >
         
         {/* History output logs */}
         <div className="flex flex-col gap-1.5">
