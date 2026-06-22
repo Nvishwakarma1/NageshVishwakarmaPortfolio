@@ -277,3 +277,190 @@ body {
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0px var(--border-color);
 }
+
+/* ─────────────────────────────────────────────────
+   VERTICAL LEFT SIDEBAR NAV
+   Slides in from the left once user scrolls past hero
+───────────────────────────────────────────────── */
+.vertical-nav {
+  position: fixed;
+  top: 50%;
+  left: 20px;
+  /* centering handled via inline marginTop calculated from element height */
+  z-index: 100;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+
+  background-color: var(--card-bg);
+  border: 3px solid var(--border-color);
+  box-shadow: 5px 5px 0px 0px var(--shadow-color);
+  padding: 12px 8px;
+
+  /* smooth slide + fade — transform overridden via inline JSX style */
+  transition:
+    transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  transform: translateX(-110%) translateY(-50%);
+}
+
+/* Brand / logo button */
+.vertical-nav__brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 1.05rem;
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--text-base);
+  background: none;
+  border: 2px solid var(--border-color);
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  margin-bottom: 6px;
+}
+
+.vertical-nav__brand:hover {
+  background-color: var(--accent-canary);
+  color: #111;
+  box-shadow: 2px 2px 0px 0px var(--border-color);
+  transform: translate(2px, 2px);
+}
+
+.vertical-nav__brand-letter {
+  color: var(--text-base);
+}
+
+.vertical-nav__brand-dot {
+  color: var(--accent-pink);
+  margin-left: 1px;
+}
+
+/* Divider line */
+.vertical-nav::before {
+  content: '';
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: var(--border-color);
+  opacity: 0.4;
+  margin: 2px 0;
+  flex-shrink: 0;
+}
+
+/* Links list */
+.vertical-nav__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+}
+
+.vertical-nav__links li {
+  /* Staggered fade-in handled via inline style in JSX */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Individual nav link button */
+.vertical-nav__link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 44px;
+  padding: 8px 4px 6px;
+  background: none;
+  border: 2px solid transparent;
+  cursor: pointer;
+  color: var(--text-base);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    transform 0.15s ease;
+}
+
+.vertical-nav__link-label {
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-align: center;
+  color: inherit;
+  writing-mode: vertical-lr;
+  transform: rotate(180deg);
+  white-space: nowrap;
+  max-height: 56px;
+}
+
+.vertical-nav__link:hover {
+  background-color: var(--accent-canary);
+  border-color: var(--border-color);
+  color: #111;
+  box-shadow: 2px 2px 0px 0px var(--border-color);
+  transform: translate(2px, 2px);
+}
+
+.vertical-nav__link--active {
+  background-color: var(--accent-mint);
+  border-color: var(--border-color);
+  color: #111;
+  box-shadow: 2px 2px 0px 0px var(--border-color);
+}
+
+.vertical-nav__link--active:hover {
+  background-color: var(--accent-mint);
+  color: #111;
+}
+
+/* Active section dot indicator */
+.vertical-nav__link-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  background-color: #111;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Theme toggle at the bottom */
+.vertical-nav__theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  margin-top: 6px;
+  background-color: var(--card-bg);
+  border: 2px solid var(--border-color);
+  color: var(--text-base);
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.vertical-nav__theme-btn:hover {
+  background-color: var(--accent-mint);
+  color: #111;
+  box-shadow: 2px 2px 0px 0px var(--border-color);
+  transform: translate(2px, 2px);
+}
+
+/* ── Responsive: hide sidebar on very small screens ── */
+@media (max-width: 480px) {
+  .vertical-nav {
+    display: none;
+  }
+}

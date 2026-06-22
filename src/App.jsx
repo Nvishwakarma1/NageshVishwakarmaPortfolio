@@ -15,6 +15,7 @@ export default function App() {
   });
 
   const [activeSection, setActiveSection] = useState('hero');
+  const [pastHero, setPastHero] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -35,6 +36,13 @@ export default function App() {
       const sections = ['hero', 'capabilities', 'projects', 'contact'];
       const scrollPos = window.scrollY + 250;
 
+      // Detect when user has scrolled past the hero section
+      const heroEl = document.getElementById('hero');
+      if (heroEl) {
+        const heroBottom = heroEl.offsetTop + heroEl.offsetHeight;
+        setPastHero(window.scrollY + 100 > heroBottom);
+      }
+
       for (const section of sections) {
         const el = document.getElementById(section);
         if (el) {
@@ -48,7 +56,7 @@ export default function App() {
       }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -82,9 +90,16 @@ export default function App() {
         COORD_TRACER // X: 0000 | Y: 0000
       </div>
 
-      {/* Floating Sticky Navigation Bar */}
-      <header className="sticky top-6 z-50 w-full max-w-4xl mx-auto px-4 mt-6">
-        <nav className="bg-card-bg nav-fade-border shadow-brutal flex justify-between items-center p-3 select-none transition-all duration-300">
+      {/* ── TOP Horizontal Nav (visible only on hero section) ── */}
+      <header
+        className="sticky top-6 z-50 w-full max-w-4xl mx-auto px-4 mt-6 transition-all duration-500"
+        style={{
+          opacity: pastHero ? 0 : 1,
+          pointerEvents: pastHero ? 'none' : 'auto',
+          transform: pastHero ? 'translateY(-16px)' : 'translateY(0)',
+        }}
+      >
+        <nav className="bg-card-bg nav-fade-border shadow-brutal flex justify-between items-center p-3 select-none">
           <div className="flex items-center gap-2 cursor-pointer" onClick={() => scrollToSection('hero')}>
             <span className="font-heading text-lg font-extrabold uppercase tracking-tight text-text-base">
               Nagesh<span className="text-pink">.</span>Dev
@@ -121,6 +136,57 @@ export default function App() {
           </div>
         </nav>
       </header>
+
+      {/* ── LEFT Vertical Sidebar Nav (slides in past hero) ── */}
+      <aside
+        className="vertical-nav"
+        style={{
+          transform: pastHero ? 'translateX(0) translateY(-50%)' : 'translateX(-110%) translateY(-50%)',
+          opacity: pastHero ? 1 : 0,
+          pointerEvents: pastHero ? 'auto' : 'none',
+        }}
+        aria-label="Vertical navigation"
+      >
+        {/* Logo / Brand */}
+        <button
+          className="vertical-nav__brand"
+          onClick={() => scrollToSection('hero')}
+          title="Back to top"
+        >
+          <span className="vertical-nav__brand-letter">N</span>
+          <span className="vertical-nav__brand-dot">.</span>
+        </button>
+
+        {/* Nav links */}
+        <ul className="vertical-nav__links">
+          {navLinks.map((link, i) => (
+            <li key={link.id} style={{ transitionDelay: pastHero ? `${i * 50 + 100}ms` : '0ms' }}>
+              <button
+                onClick={() => scrollToSection(link.id)}
+                className={`vertical-nav__link ${
+                  activeSection === link.id ? 'vertical-nav__link--active' : ''
+                }`}
+                title={link.label}
+              >
+                <span className="vertical-nav__link-label">{link.label}</span>
+                {activeSection === link.id && (
+                  <span className="vertical-nav__link-dot" />
+                )}
+              </button>
+            </li>
+          ))}
+        </ul>
+
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          className="vertical-nav__theme-btn"
+          aria-label="Toggle Theme"
+          title={theme === 'dark' ? 'Switch to light' : 'Switch to dark'}
+        >
+          {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+        </button>
+      </aside>
 
       {/* Main Single Page Layout Container */}
       <main className="w-full max-w-5xl mx-auto px-4 mt-12 flex flex-col gap-24">
