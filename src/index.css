@@ -20,7 +20,7 @@
   --text-base: #F9F9FB;
   --dot-color: rgba(249, 249, 251, 0.08);
   --border-color: #F9F9FB;
-  --shadow-color: #00FF66; /* Mint shadow in dark mode for extra glow */
+  --shadow-color: #fc6626; /* Mint shadow in dark mode for extra glow */
   --accent-mint: #00FF66;
   --accent-canary: #FFE600;
   --accent-pink: #FF007A;
