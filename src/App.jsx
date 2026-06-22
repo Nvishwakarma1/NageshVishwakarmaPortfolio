@@ -11,7 +11,7 @@ export default function App() {
     const saved = localStorage.getItem('theme');
     if (saved) return saved;
     // Default to light mode for the premium brutalist base background #F9F9FB
-    return 'light';
+    return 'dark';
   });
 
   const [activeSection, setActiveSection] = useState('hero');
