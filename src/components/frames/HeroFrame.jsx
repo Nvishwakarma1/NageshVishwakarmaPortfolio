@@ -376,6 +376,92 @@ function MobiusRing({ baseSpeed, twists, thickness, renderStyle, activeColor, ta
   );
 }
 
+// ─── Black Hole Singularity Component (ported from blackhole_and_singularity.js) ───
+function BlackHoleSingularity({ baseSpeed, twists, thickness }) {
+  const COUNT = 18000;
+  const meshRef = useRef();
+  const positionsRef = useRef([]);
+  const dummyRef = useRef(new THREE.Object3D());
+  const colorRef = useRef(new THREE.Color());
+  const { viewport } = useThree();
+
+  const geometry = useMemo(() => new THREE.TetrahedronGeometry(0.1), []);
+  const material = useMemo(() => new THREE.MeshBasicMaterial({ color: 0xffffff, vertexColors: true }), []);
+
+  // Pre-fill positions array
+  useEffect(() => {
+    positionsRef.current = Array.from({ length: COUNT }, () =>
+      new THREE.Vector3(
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 20,
+        (Math.random() - 0.5) * 20
+      )
+    );
+  }, []);
+
+  // Scale to fit the viewport (same logic as MobiusRing)
+  const scaleFactor = Math.min(viewport.width / 5.2, 1.1);
+
+  useFrame(({ clock }) => {
+    const mesh = meshRef.current;
+    if (!mesh || positionsRef.current.length === 0) return;
+
+    const time = clock.getElapsedTime();
+    // baseSpeed controls rotation speed
+    const t = time * 0.35 * baseSpeed;
+
+    // Black-hole parameters — wired to control panel sliders:
+    //   baseSpeed → spin speed (passed via t above)
+    //   twists    → space warp  (maps 1-5 → warp 0.5-4.5)
+    //   thickness → disk height (maps 0.2-1.2 → accretion 0.3-2.0)
+    const scale = 3;
+    const spin = 0.2;
+    const accretion = THREE.MathUtils.mapLinear(thickness, 0.2, 1.2, 0.3, 2.0);
+    const warp = THREE.MathUtils.mapLinear(twists, 1, 5, 0.5, 4.5);
+    const ga = 2.399963229728653;
+
+    for (let i = 0; i < COUNT; i++) {
+      const u = (i + 0.5) / COUNT;
+      const a = i * ga;
+      const band = u * 24.0 - 12.0;
+      const disk = 1.0 - Math.abs(Math.sin(band * 0.5));
+      const radius = scale * (0.08 + 1.9 * u * u);
+      const swirl = a + spin * Math.log(radius + 1.0) - t * (2.0 + 3.0 * (1.0 - u));
+      const grav = 1.0 / (1.0 + radius * 0.015);
+      const bend = warp * grav * grav;
+      const x0 = radius * Math.cos(swirl);
+      const z0 = radius * Math.sin(swirl);
+      const x = x0 + bend * z0;
+      const z = z0 - bend * x0;
+      const y = scale * 0.22 * disk * Math.sin(a * 0.17 + t * 4.0) * accretion;
+
+      // Lerp positions for smooth particle flow
+      positionsRef.current[i].lerp({ x, y, z }, 0.1);
+
+      const heat = 1.0 - Math.min(1.0, radius / (scale * 2.0));
+      const hue = 0.08 + 0.58 * (1.0 - heat);
+      const sat = 0.8 + 0.2 * heat;
+      const light = 0.15 + 0.55 * Math.pow(heat, 1.5);
+      colorRef.current.setHSL(hue, sat, light);
+
+      const dummy = dummyRef.current;
+      dummy.position.copy(positionsRef.current[i]);
+      dummy.scale.setScalar(scaleFactor);
+      dummy.updateMatrix();
+      mesh.setMatrixAt(i, dummy.matrix);
+      mesh.setColorAt(i, colorRef.current);
+    }
+
+    mesh.instanceMatrix.needsUpdate = true;
+    if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  });
+
+  return (
+    <instancedMesh ref={meshRef} args={[geometry, material, COUNT]}>
+    </instancedMesh>
+  );
+}
+
 // Hex inversion helper for Neo-Brutalist swatch visual active state
 const invertColor = (hex) => {
   const color = parseInt(hex.slice(1), 16);
@@ -400,7 +486,8 @@ export default function HeroFrame({ onNavigate, theme }) {
   const SHAPE_NAMES = {
     MOBIUS: 'MOBIUS_RING.EXE',
     TORUS_KNOT: 'TORUS_KNOT.SYS',
-    SPHERE: 'HYPER_SPHERE.RAW'
+    SPHERE: 'HYPER_SPHERE.RAW',
+    BLACK_HOLE: 'BLACKHOLE.SINGULARITY'
   };
 
   useEffect(() => {
@@ -553,27 +640,34 @@ export default function HeroFrame({ onNavigate, theme }) {
                   <option value="MOBIUS">MÖBIUS STRIP</option>
                   <option value="TORUS_KNOT">TORUS KNOT</option>
                   <option value="SPHERE">HYPER-SPHERE</option>
+                  <option value="BLACK_HOLE">BLACK HOLE ★</option>
                 </select>
               </div>
             </div>
 
-            {/* Command Toggle Style Shifters */}
+            {/* Command Toggle Style Shifters — hidden for BLACK_HOLE */}
             <div className="flex items-center gap-2">
-              <div className="flex gap-1">
-                {['WIREFRAME', 'SOLID', 'PARTICLES'].map((style) => (
-                  <button
-                    key={style}
-                    onClick={() => setRenderStyle(style)}
-                    className={`px-1.5 py-0.5 border border-border-base text-[9px] font-bold cursor-pointer transition-colors duration-150 ${
-                      renderStyle === style 
-                        ? 'bg-mint text-black font-black' 
-                        : 'bg-card-bg text-text-base hover:bg-border-base/10'
-                    }`}
-                  >
-                    {`[ ${style} ]`}
-                  </button>
-                ))}
-              </div>
+              {activeShape !== 'BLACK_HOLE' ? (
+                <div className="flex gap-1">
+                  {['WIREFRAME', 'SOLID', 'PARTICLES'].map((style) => (
+                    <button
+                      key={style}
+                      onClick={() => setRenderStyle(style)}
+                      className={`px-1.5 py-0.5 border border-border-base text-[9px] font-bold cursor-pointer transition-colors duration-150 ${
+                        renderStyle === style 
+                          ? 'bg-mint text-black font-black' 
+                          : 'bg-card-bg text-text-base hover:bg-border-base/10'
+                      }`}
+                    >
+                      {`[ ${style} ]`}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <span className="px-1.5 py-0.5 border border-border-base text-[9px] font-bold bg-orange-500/20 text-orange-400 animate-pulse">
+                  [ SINGULARITY_MODE ]
+                </span>
+              )}
               <span className="opacity-75 hidden sm:inline">3D_RENDER: OK</span>
             </div>
           </div>
@@ -590,23 +684,42 @@ export default function HeroFrame({ onNavigate, theme }) {
                 LOADING 3D SCENE...
               </div>
             }>
-              <Canvas
-                camera={{ position: [0, 0, 7], fov: 45 }}
-                dpr={[1, 2]}
-                gl={{ antialias: true, alpha: true }}
+              <div
+                style={{
+                  position: 'absolute', inset: 0,
+                  filter: activeShape === 'BLACK_HOLE'
+                    ? 'drop-shadow(0 0 6px #ff6600) drop-shadow(0 0 18px #ff3300) brightness(1.15)'
+                    : 'none',
+                  transition: 'filter 0.6s ease',
+                }}
               >
-                <ambientLight intensity={theme === 'dark' ? 0.3 : 0.6} />
-                <directionalLight position={[5, 5, 5]} intensity={theme === 'dark' ? 1.0 : 1.5} />
-                <directionalLight position={[-5, -5, -5]} intensity={theme === 'dark' ? 0.2 : 0.4} />
-                <MobiusRing 
-                  baseSpeed={baseSpeed}
-                  twists={twists}
-                  thickness={thickness}
-                  renderStyle={renderStyle}
-                  activeColor={activeColor}
-                  targetShape={activeShape}
-                />
-              </Canvas>
+                <Canvas
+                  camera={{ position: [0, 0, 7], fov: 45 }}
+                  dpr={[1, 2]}
+                  gl={{ antialias: true, alpha: true }}
+                  style={{ width: '100%', height: '100%' }}
+                >
+                  <ambientLight intensity={theme === 'dark' ? 0.3 : 0.6} />
+                  <directionalLight position={[5, 5, 5]} intensity={theme === 'dark' ? 1.0 : 1.5} />
+                  <directionalLight position={[-5, -5, -5]} intensity={theme === 'dark' ? 0.2 : 0.4} />
+                  {activeShape === 'BLACK_HOLE' ? (
+                    <BlackHoleSingularity
+                      baseSpeed={baseSpeed}
+                      twists={twists}
+                      thickness={thickness}
+                    />
+                  ) : (
+                    <MobiusRing
+                      baseSpeed={baseSpeed}
+                      twists={twists}
+                      thickness={thickness}
+                      renderStyle={renderStyle}
+                      activeColor={activeColor}
+                      targetShape={activeShape}
+                    />
+                  )}
+                </Canvas>
+              </div>
             </Suspense>
 
              {/* Retro Sliders Control Panel */}
@@ -648,7 +761,7 @@ export default function HeroFrame({ onNavigate, theme }) {
                   {/* Base Speed Slider */}
                   <div className="flex flex-col gap-1">
                     <div className="flex justify-between font-bold">
-                      <span>BASE SPEED</span>
+                      <span>{activeShape === 'BLACK_HOLE' ? 'ROTATION SPEED' : 'BASE SPEED'}</span>
                       <span>{baseSpeed.toFixed(1)}X</span>
                     </div>
                     <input 
@@ -661,11 +774,11 @@ export default function HeroFrame({ onNavigate, theme }) {
                       className="neo-slider"
                     />
                   </div>
-                  {/* Geometry Twists Slider */}
+                  {/* Geometry Twists / Space Warp Slider */}
                   <div className="flex flex-col gap-1">
                     <div className="flex justify-between font-bold">
-                      <span>GEOMETRY TWISTS</span>
-                      <span>{twists}</span>
+                      <span>{activeShape === 'BLACK_HOLE' ? 'SPACE WARP' : 'GEOMETRY TWISTS'}</span>
+                      <span>{activeShape === 'BLACK_HOLE' ? `${(twists * 0.9).toFixed(1)}x` : twists}</span>
                     </div>
                     <input 
                       type="range"
@@ -677,10 +790,10 @@ export default function HeroFrame({ onNavigate, theme }) {
                       className="neo-slider"
                     />
                   </div>
-                  {/* Thickness Slider */}
+                  {/* Thickness / Disk Height Slider */}
                   <div className="flex flex-col gap-1">
                     <div className="flex justify-between font-bold">
-                      <span>THICKNESS</span>
+                      <span>{activeShape === 'BLACK_HOLE' ? 'DISK HEIGHT' : 'THICKNESS'}</span>
                       <span>{thickness.toFixed(2)}</span>
                     </div>
                     <input 
