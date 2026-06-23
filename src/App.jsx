@@ -83,6 +83,30 @@ export default function App() {
   return (
     <>
       <LoadingScreen onComplete={() => setLoaded(true)} />
+
+      {/* ── Fixed Vertical CV Download Button ── */}
+      <a
+        href="https://drive.google.com/file/d/1Yy7LDmPiXfueT43OHEKGgz5pobQP59Sw/view?usp=sharing"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Download CV"
+        className="fixed z-50 flex items-center gap-2 font-mono font-black text-[10px] uppercase tracking-widest bg-card-bg text-text-base border-2 border-border-base shadow-[3px_3px_0px_0px_var(--border-color)] hover:bg-mint hover:text-black hover:shadow-[1px_1px_0px_0px_var(--border-color)] hover:translate-x-0.5 hover:translate-y-0.5 active:translate-x-1 active:translate-y-1 active:shadow-none transition-all duration-150 px-3 py-3 select-none"
+        style={{
+          right: '0px',
+          bottom: '50px',
+          writingMode: 'vertical-rl',
+          textOrientation: 'mixed',
+          transform: 'rotate(180deg)',
+        }}
+      >
+        <span style={{ transform: 'rotate(180deg)', fontSize: '11px' }}>↓</span>
+        GET CV
+        <span
+          className="w-2 h-2 rounded-full bg-mint animate-pulse"
+          style={{ transform: 'rotate(180deg)' }}
+        />
+      </a>
+
       <div
         className="min-h-screen flex flex-col font-sans relative pb-20 selection:bg-canary selection:text-black transition-colors duration-300"
         style={{
