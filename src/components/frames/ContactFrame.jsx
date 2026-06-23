@@ -84,16 +84,53 @@ export default function ContactFrame() {
     setCurrentInput('');
   };
 
-  const handleTransmit = () => {
+  const [isSending, setIsSending] = useState(false);
+
+  const handleTransmit = async () => {
+    setIsSending(true);
     setHistory(prev => [
       ...prev,
       { text: `Guest@NageshOS:~$ send_packet --all`, type: 'command' },
       { text: `Transmitting...`, type: 'output' },
-      { text: `Connection status: 200 OK.`, type: 'output' },
-      { text: `Transmission complete! Thank you. I will reply shortly.`, type: 'success' }
     ]);
-    setStep(4);
+
+    try {
+      const formData = new FormData();
+      formData.append('access_key', '05c2ce82-6a34-4469-9123-27e504da2794');
+      formData.append('name', name);
+      formData.append('email', email);
+      formData.append('message', message);
+
+      const response = await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setHistory(prev => [
+          ...prev,
+          { text: `Connection status: 200 OK.`, type: 'output' },
+          { text: `Transmission complete! Thank you. I will reply shortly.`, type: 'success' },
+        ]);
+        setStep(4);
+      } else {
+        setHistory(prev => [
+          ...prev,
+          { text: `Error: ${data.message || 'Transmission failed. Please try again.'}`, type: 'error' },
+        ]);
+      }
+    } catch {
+      setHistory(prev => [
+        ...prev,
+        { text: `Error: Network failure. Check connection and retry.`, type: 'error' },
+      ]);
+    } finally {
+      setIsSending(false);
+    }
   };
+
 
   const handleReset = () => {
     setName('');
@@ -175,9 +212,10 @@ export default function ContactFrame() {
         <div className="flex gap-4 mt-2">
           <button
             onClick={handleTransmit}
-            className="bg-mint text-black border-2 border-border-base font-heading font-black text-xs uppercase px-4 py-2.5 shadow-[3px_3px_0px_0px_var(--border-color)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_var(--border-color)] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center gap-1.5 transition-all cursor-pointer"
+            disabled={isSending}
+            className={`bg-mint text-black border-2 border-border-base font-heading font-black text-xs uppercase px-4 py-2.5 shadow-[3px_3px_0px_0px_var(--border-color)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_var(--border-color)] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center gap-1.5 transition-all ${isSending ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
           >
-            Transmit Packet <Send size={12} />
+            {isSending ? 'TRANSMITTING...' : <>Transmit Packet <Send size={12} /></>}
           </button>
           <button
             onClick={handleReset}
