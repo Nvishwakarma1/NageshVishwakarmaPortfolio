@@ -5,6 +5,7 @@ import ProjectsFrame from './components/frames/ProjectsFrame';
 import ExperienceFrame from './components/frames/ExperienceFrame';
 import ContactFrame from './components/frames/ContactFrame';
 import GlitchText from './components/GlitchText';
+import LoadingScreen from './components/LoadingScreen';
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
@@ -16,6 +17,7 @@ export default function App() {
 
   const [activeSection, setActiveSection] = useState('hero');
   const [pastHero, setPastHero] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -79,7 +81,15 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col font-sans relative pb-20 selection:bg-canary selection:text-black transition-colors duration-300">
+    <>
+      <LoadingScreen onComplete={() => setLoaded(true)} />
+      <div
+        className="min-h-screen flex flex-col font-sans relative pb-20 selection:bg-canary selection:text-black transition-colors duration-300"
+        style={{
+          opacity: loaded ? 1 : 0,
+          transition: 'opacity 0.8s ease',
+        }}
+      >
       
       {/* Background Vector Coordinate Tracer */}
       <div 
@@ -257,5 +267,6 @@ export default function App() {
       </footer>
 
     </div>
+    </>
   );
 }
