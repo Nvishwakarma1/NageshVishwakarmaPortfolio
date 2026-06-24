@@ -6,6 +6,8 @@ import ExperienceFrame from './components/frames/ExperienceFrame';
 import ContactFrame from './components/frames/ContactFrame';
 import GlitchText from './components/GlitchText';
 import LoadingScreen from './components/LoadingScreen';
+import StyleToggle from './components/StyleToggle';
+import MinimalNav from './components/MinimalNav';
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
@@ -15,9 +17,27 @@ export default function App() {
     return 'dark';
   });
 
+  const [layoutMode, setLayoutMode] = useState(() => {
+    return localStorage.getItem('layoutMode') || 'minimal';
+  });
+
   const [activeSection, setActiveSection] = useState('hero');
   const [pastHero, setPastHero] = useState(false);
-  const [loaded, setLoaded] = useState(false);
+  const [loaded, setLoaded] = useState(() => {
+    const initialMode = localStorage.getItem('layoutMode') || 'minimal';
+    return initialMode === 'minimal';
+  });
+
+  useEffect(() => {
+    if (layoutMode === 'minimal') {
+      document.documentElement.classList.add('unibody-mode');
+      setLoaded(true);
+    } else {
+      document.documentElement.classList.remove('unibody-mode');
+      setLoaded(false);
+    }
+    localStorage.setItem('layoutMode', layoutMode);
+  }, [layoutMode]);
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
@@ -82,7 +102,10 @@ export default function App() {
 
   return (
     <>
-      <LoadingScreen onComplete={() => setLoaded(true)} />
+      {!loaded && <LoadingScreen onComplete={() => setLoaded(true)} />}
+
+      <StyleToggle layoutMode={layoutMode} onChange={setLayoutMode} />
+      <MinimalNav activeSection={activeSection} scrollToSection={scrollToSection} />
 
       {/* ── Fixed Vertical CV Download Button ── */}
       <a
@@ -226,12 +249,12 @@ export default function App() {
       <main className="w-full max-w-5xl mx-auto px-4 mt-12 flex flex-col gap-24">
         
         {/* HERO SECTION */}
-        <section id="hero" className="scroll-mt-32">
-          <HeroFrame onNavigate={scrollToSection} theme={theme} />
+        <section id="hero">
+          <HeroFrame onNavigate={scrollToSection} theme={theme} layoutMode={layoutMode} />
         </section>
 
         {/* CAPABILITIES & TIMELINE SECTION */}
-        <section id="capabilities" className="scroll-mt-32 border-3 border-border-base bg-card-bg p-8 shadow-brutal transition-all duration-300">
+        <section id="capabilities" className="border-3 border-border-base bg-card-bg p-8 shadow-brutal transition-all duration-300">
           <div className="mb-8 border-b-3 border-border-base pb-4">
             <span className="font-mono text-xs font-extrabold uppercase tracking-wider text-pink block mb-1">
               [ Skills & Timeline ]
@@ -240,11 +263,11 @@ export default function App() {
               <GlitchText text="Capabilities & Experience" />
             </h2>
           </div>
-          <ExperienceFrame />
+          <ExperienceFrame layoutMode={layoutMode} />
         </section>
 
         {/* PROJECTS SECTION */}
-        <section id="projects" className="scroll-mt-32 border-3 border-border-base bg-card-bg p-8 shadow-brutal transition-all duration-300">
+        <section id="projects" className="border-3 border-border-base bg-card-bg p-8 shadow-brutal transition-all duration-300">
           <div className="mb-8 border-b-3 border-border-base pb-4">
             <span className="font-mono text-xs font-extrabold uppercase tracking-wider text-electric block mb-1">
               [ Selected Projects ]
@@ -253,11 +276,11 @@ export default function App() {
               <GlitchText text="Works Showcase" />
             </h2>
           </div>
-          <ProjectsFrame />
+          <ProjectsFrame layoutMode={layoutMode} />
         </section>
 
         {/* CONTACT SECTION */}
-        <section id="contact" className="scroll-mt-32 border-3 border-border-base bg-card-bg p-8 shadow-brutal transition-all duration-300">
+        <section id="contact" className="border-3 border-border-base bg-card-bg p-8 shadow-brutal transition-all duration-300">
           <div className="mb-8 border-b-3 border-border-base pb-4">
             <span className="font-mono text-xs font-extrabold uppercase tracking-wider text-mint block mb-1">
               [ Secure Console ]
@@ -266,7 +289,7 @@ export default function App() {
               <GlitchText text="Get In Touch" />
             </h2>
           </div>
-          <ContactFrame />
+          <ContactFrame layoutMode={layoutMode} />
         </section>
 
       </main>

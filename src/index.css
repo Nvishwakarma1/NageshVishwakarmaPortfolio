@@ -464,3 +464,234 @@ body {
     display: none;
   }
 }
+
+/* ─────────────────────────────────────────────────
+   ULTRA-MINIMALIST UNIBODY (MINIMAL_OS) MODE
+───────────────────────────────────────────────── */
+html.unibody-mode {
+  --bg-base: #1f2022 !important;
+  --text-base: #ffffff !important;
+  --dot-color: transparent !important;
+  --border-color: #3e4045 !important;
+  --shadow-color: transparent !important;
+  --accent-mint: #ffffff !important;
+  --accent-canary: #e4e4e7 !important;
+  --accent-pink: #a1a1aa !important;
+  --accent-blue: #ffffff !important;
+  --card-bg: transparent !important;
+}
+
+html.unibody-mode body {
+  background-color: #1f2022 !important;
+  background-image: none !important;
+  font-family: var(--font-mono) !important;
+  color: #ffffff !important;
+}
+
+/* Hide stylized elements */
+html.unibody-mode #vector-tracker,
+html.unibody-mode header,
+html.unibody-mode aside.vertical-nav,
+html.unibody-mode a[aria-label="Download CV"],
+html.unibody-mode footer button {
+  display: none !important;
+}
+
+/* Structural resets for Minimal Mode */
+html.unibody-mode main {
+  max-width: 900px !important;
+  padding: 30px 10px !important;
+  gap: 10px !important;
+}
+
+/* Scroll margins for section snapping */
+section {
+  scroll-margin-top: 24px;
+}
+
+#hero {
+  scroll-margin-top: 0px !important;
+}
+
+html.unibody-mode section {
+  background-color: transparent !important;
+  border-width: 0 0 1px 0 !important;
+  border-style: solid !important;
+  border-color: #3e4045 !important;
+  border-radius: 0px !important;
+  box-shadow: none !important;
+  padding: 48px 0 !important;
+  scroll-margin-top: 0px !important;
+}
+
+html.unibody-mode section div {
+  border-color: #3e4045 !important;
+}
+
+/* Overrides for brutalist components */
+html.unibody-mode .shadow-brutal,
+html.unibody-mode [class*="shadow-brutal"] {
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+html.unibody-mode .border-3,
+html.unibody-mode .border-2,
+html.unibody-mode .border {
+  border-width: 1px !important;
+  border-style: solid !important;
+  border-color: #3e4045 !important;
+}
+
+/* Turn off interactive transform pushes */
+html.unibody-mode .brutal-interactive:hover,
+html.unibody-mode .brutal-interactive:active,
+html.unibody-mode [class*="hover:shadow"],
+html.unibody-mode [class*="hover:translate"],
+html.unibody-mode [class*="active:translate"] {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Colors & Badges */
+html.unibody-mode .bg-card-bg,
+html.unibody-mode .bg-mint,
+html.unibody-mode .bg-canary,
+html.unibody-mode .bg-pink,
+html.unibody-mode .bg-electric {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+html.unibody-mode .text-pink,
+html.unibody-mode .text-electric,
+html.unibody-mode .text-mint {
+  color: #a1a1aa !important;
+}
+
+html.unibody-mode font {
+  font-family: var(--font-mono) !important;
+}
+
+html.unibody-mode * {
+  font-family: var(--font-mono) !important;
+  letter-spacing: 0.03em !important;
+}
+
+/* Timeline specific tweaks */
+html.unibody-mode .railway-line {
+  background-color: #3e4045 !important;
+  width: 1px !important;
+  left: 8px !important;
+}
+
+html.unibody-mode .railway-node {
+  border-width: 1px !important;
+  border-color: #3e4045 !important;
+  background-color: #1f2022 !important;
+  width: 10px !important;
+  height: 10px !important;
+  left: -20px !important;
+}
+
+html.unibody-mode .railway-card {
+  box-shadow: none !important;
+  background-color: transparent !important;
+  border-width: 1px !important;
+  border-color: #3e4045 !important;
+  padding: 16px !important;
+}
+
+/* Custom scrollbars in unibody mode */
+html.unibody-mode ::-webkit-scrollbar-track {
+  background: #1f2022 !important;
+  border-left: 1px solid #3e4045 !important;
+}
+
+html.unibody-mode ::-webkit-scrollbar-thumb {
+  background: #3e4045 !important;
+  border: 3px solid #1f2022 !important;
+}
+
+html.unibody-mode ::-webkit-scrollbar-thumb:hover {
+  background: #888c94 !important;
+}
+
+/* Right-side navigation layout logic */
+.minimal-nav {
+  display: none !important;
+}
+
+html.unibody-mode .minimal-nav {
+  display: flex !important;
+}
+
+/* Image Shine Sweep Animation */
+@keyframes shine-sweep {
+  0% { transform: skewX(-20deg) translateX(-150%); }
+  35% { transform: skewX(-20deg) translateX(150%); }
+  100% { transform: skewX(-20deg) translateX(150%); }
+}
+
+.shine-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shine-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 45%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0.2) 55%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-20deg) translateX(-150%);
+  pointer-events: none;
+}
+
+.shine-animation::after {
+  animation: shine-sweep 4.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Hologram Watermark Styling & Flickers */
+@keyframes holo-flicker {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+    opacity: 0.1;
+    filter: drop-shadow(0 0 10px rgba(0, 255, 102, 0.25)) contrast(100%);
+  }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+    opacity: 0.04;
+    filter: drop-shadow(0 0 3px rgba(0, 255, 102, 0.08)) contrast(60%);
+  }
+}
+
+@keyframes holo-flicker-minimal {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+    opacity: 0.05;
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.15)) contrast(100%);
+  }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+    opacity: 0.02;
+    filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.04)) contrast(60%);
+  }
+}
+
+.hologram-watermark {
+  animation: holo-flicker 5s linear infinite;
+  text-shadow: 0 0 8px currentColor;
+}
+
+html.unibody-mode .hologram-watermark {
+  animation: holo-flicker-minimal 6s linear infinite;
+}
+
+
+

@@ -99,7 +99,7 @@ const PROJECTS = [
   },
 ];
 
-export default function ProjectsFrame() {
+export default function ProjectsFrame({ layoutMode }) {
   const getIcon = (iconName) => {
     switch (iconName) {
       case "cpu":
@@ -112,6 +112,131 @@ export default function ProjectsFrame() {
         return <Monitor className="w-8 h-8" />;
     }
   };
+
+  if (layoutMode === 'minimal') {
+    return (
+      <div className="flex flex-col gap-6">
+        {/* Dynamic structural responsive grid layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {PROJECTS.map((proj) => (
+            <div
+              key={proj.id}
+              className="group flex flex-col border border-[#3e4045] bg-[#1a1b1d]/40 p-5 transition-all duration-300 select-none"
+            >
+              {/* Preview frame with grayscale-to-color hover sweep */}
+              <div
+                className="w-full h-44 border border-[#3e4045] mb-4 relative overflow-hidden bg-[#111111] filter grayscale contrast-115 brightness-90 transition-all duration-500 group-hover:grayscale-0 group-hover:contrast-100 group-hover:brightness-100"
+                style={{
+                  backgroundImage: "radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px)",
+                  backgroundSize: "12px 12px",
+                }}
+              >
+                {proj.liveUrl && proj.liveUrl !== "#" ? (
+                  <div className="w-full h-full relative">
+                    {/* Outer Wrapper forcing downscaling matrix dimensions */}
+                    <div 
+                      className="absolute top-0 left-0 origin-top-left pointer-events-none"
+                      style={{
+                        width: "1280px",
+                        height: "704px",
+                        transform: "scale(0.265)"
+                      }}
+                    >
+                      <iframe
+                        src={proj.liveUrl}
+                        title={proj.title}
+                        className="w-full h-full border-none bg-white select-none"
+                        loading="lazy"
+                      />
+                    </div>
+                    {/* Anti-Scroll Trap Invisible Barrier Overlay */}
+                    <div className="absolute inset-0 z-10 bg-transparent pointer-events-auto" />
+                  </div>
+                ) : (
+                  /* Fallback layout for offline items without live routes */
+                  <div className="w-full h-full flex flex-col justify-center items-center">
+                    <div className="p-3 border border-[#3e4045] text-white bg-transparent">
+                      {getIcon(proj.icon)}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Context utility identification sticker */}
+                <span className="absolute bottom-1 right-1 z-20 font-mono text-[7px] text-[#888c94] bg-[#111111] px-1.5 py-0.5 border border-[#3e4045] uppercase tracking-wider">
+                  {proj.liveUrl && proj.liveUrl !== "#" ? "LIVE_PREVIEW" : "OFFLINE_SRC"}
+                </span>
+              </div>
+
+              {/* Title & Type Badge */}
+              <div className="flex items-center justify-between gap-2 mb-2 font-mono text-[9px]">
+                <span className="text-[#888c94]">
+                  [ {proj.type} ]
+                </span>
+                <span className="text-[#888c94]">
+                  ID: 0{proj.id}
+                </span>
+              </div>
+
+              <h3 className="font-mono text-sm font-extrabold uppercase text-white tracking-wide mb-2">
+                {proj.title}
+              </h3>
+
+              {/* Description Area */}
+              <p className="font-mono text-[10px] text-[#a1a1aa] leading-relaxed mb-4 flex-grow border-t border-dashed border-[#3e4045] pt-3">
+                {proj.description}
+              </p>
+
+              {/* Tech Stack Outline */}
+              <div className="flex flex-wrap gap-1.5 mb-5 font-mono text-[8px]">
+                {proj.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="border border-[#3e4045] text-[#888c94] px-1.5 py-0.5"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              {/* Card Action Interactive Buttons */}
+              <div className="flex gap-3 border-t border-[#3e4045] pt-4 mt-auto font-mono text-[10px]">
+                {proj.githubUrl ? (
+                  <a
+                    href={proj.githubUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 text-center py-2 px-3 border border-[#3e4045] hover:bg-[#3e4045] hover:text-white transition-all cursor-pointer"
+                  >
+                    Source
+                  </a>
+                ) : (
+                  <span className="flex-1 text-center py-2 px-3 border border-[#3e4045] opacity-35 cursor-not-allowed">
+                    Closed
+                  </span>
+                )}
+                
+                {proj.liveUrl && proj.liveUrl !== "#" ? (
+                  <a
+                    href={proj.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 text-center py-2 px-3 border border-[#3e4045] bg-[#3e4045] text-white hover:bg-white hover:text-black transition-all cursor-pointer"
+                  >
+                    Launch
+                  </a>
+                ) : (
+                  <span className="flex-1 text-center py-2 px-3 border border-[#3e4045] opacity-35 cursor-not-allowed">
+                    Offline
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="flex flex-col gap-6">

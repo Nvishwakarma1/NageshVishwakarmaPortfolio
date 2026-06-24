@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Send, Terminal } from 'lucide-react';
 
-export default function ContactFrame() {
+export default function ContactFrame({ layoutMode }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [message, setMessage] = useState('');
@@ -144,38 +144,61 @@ export default function ContactFrame() {
     ]);
   };
 
+  const isMinimal = layoutMode === 'minimal';
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 select-none">
       
       {/* Console Header Bar */}
-      <div className="flex justify-between items-center border-b-2 border-border-base pb-3">
+      <div className={`flex justify-between items-center pb-3 ${isMinimal ? 'border-b border-[#3e4045]' : 'border-b-2 border-border-base'}`}>
         <div className="flex items-center gap-2 font-mono text-xs font-bold text-text-base">
-          <Terminal size={14} className="text-pink" />
+          <Terminal size={14} className={isMinimal ? 'text-white' : 'text-pink'} />
           <span>SECURE_SHELL_CONTACT.EXE</span>
         </div>
         
         {/* Mock window dots */}
         <div className="flex gap-1.5">
-          <span className="w-2.5 h-2.5 rounded-full border border-border-base bg-pink" />
-          <span className="w-2.5 h-2.5 rounded-full border border-border-base bg-canary" />
-          <span className="w-2.5 h-2.5 rounded-full border border-border-base bg-mint" />
+          {isMinimal ? (
+            <>
+              <span className="w-2.5 h-2.5 rounded-full border border-[#3e4045]" />
+              <span className="w-2.5 h-2.5 rounded-full border border-[#3e4045]" />
+              <span className="w-2.5 h-2.5 rounded-full border border-[#3e4045]" />
+            </>
+          ) : (
+            <>
+              <span className="w-2.5 h-2.5 rounded-full border border-border-base bg-pink" />
+              <span className="w-2.5 h-2.5 rounded-full border border-border-base bg-canary" />
+              <span className="w-2.5 h-2.5 rounded-full border border-border-base bg-mint" />
+            </>
+          )}
         </div>
       </div>
 
-      {/* Terminal View Container - Added cursor-text and onClick behavior */}
+      {/* Terminal View Container */}
       <div 
         onClick={() => inputRef.current?.focus()}
-        className="bg-[#111111] border-2 border-border-base shadow-[3px_3px_0px_0px_var(--border-color)] p-4 font-mono text-xs md:text-sm text-[#e2e8f0] min-h-[250px] max-h-[300px] overflow-y-auto flex flex-col gap-2 cursor-text"
+        className={`p-4 font-mono text-xs md:text-sm min-h-[250px] max-h-[300px] overflow-y-auto flex flex-col gap-2 cursor-text ${
+          isMinimal 
+            ? 'bg-[#161719] border border-[#3e4045] text-white' 
+            : 'bg-[#111111] border-2 border-border-base shadow-[3px_3px_0px_0px_var(--border-color)] text-[#e2e8f0]'
+        }`}
       >
         
         {/* History output logs */}
         <div className="flex flex-col gap-1.5">
           {history.map((log, idx) => {
-            let colorClass = 'text-[#e2e8f0]';
-            if (log.type === 'command') colorClass = 'text-[#ffe600] font-black';
-            else if (log.type === 'input') colorClass = 'text-[#00ff66]';
-            else if (log.type === 'error') colorClass = 'text-[#ff007a] font-bold';
-            else if (log.type === 'success') colorClass = 'text-[#00ff66] font-bold';
+            let colorClass = isMinimal ? 'text-white' : 'text-[#e2e8f0]';
+            if (isMinimal) {
+              if (log.type === 'command') colorClass = 'text-white font-extrabold';
+              else if (log.type === 'input') colorClass = 'text-[#a1a1aa]';
+              else if (log.type === 'error') colorClass = 'text-[#ff6b6b] font-semibold';
+              else if (log.type === 'success') colorClass = 'text-white font-bold';
+            } else {
+              if (log.type === 'command') colorClass = 'text-[#ffe600] font-black';
+              else if (log.type === 'input') colorClass = 'text-[#00ff66]';
+              else if (log.type === 'error') colorClass = 'text-[#ff007a] font-bold';
+              else if (log.type === 'success') colorClass = 'text-[#00ff66] font-bold';
+            }
 
             return (
               <div key={idx} className={`leading-relaxed whitespace-pre-wrap ${colorClass}`}>
@@ -188,14 +211,16 @@ export default function ContactFrame() {
 
         {/* Input area */}
         {step < 3 && (
-          <form onSubmit={handleCommandSubmit} className="flex items-center gap-1.5 border-t border-dashed border-[#333333] pt-3 mt-auto">
-            <span className="text-[#00ff66] font-bold shrink-0">
+          <form onSubmit={handleCommandSubmit} className={`flex items-center gap-1.5 pt-3 mt-auto border-t border-dashed ${isMinimal ? 'border-[#3e4045]' : 'border-[#333333]'}`}>
+            <span className={`${isMinimal ? 'text-white' : 'text-[#00ff66]'} font-bold shrink-0`}>
               {step === 0 ? 'Name: $' : step === 1 ? 'Email: $' : 'Message: $'}
             </span>
             <input
               ref={inputRef}
               type={step === 1 ? 'email' : 'text'}
-              className="bg-transparent border-none outline-none text-[#e2e8f0] flex-1 font-mono text-xs md:text-sm caret-[#00ff66]"
+              className={`bg-transparent border-none outline-none flex-1 font-mono text-xs md:text-sm ${
+                isMinimal ? 'text-white caret-white' : 'text-[#e2e8f0] caret-[#00ff66]'
+              }`}
               value={currentInput}
               onChange={(e) => setCurrentInput(e.target.value)}
               placeholder={
@@ -210,33 +235,59 @@ export default function ContactFrame() {
       {/* Interactive Transmit Actions */}
       {step === 3 && (
         <div className="flex gap-4 mt-2">
-          <button
-            onClick={handleTransmit}
-            disabled={isSending}
-            className={`bg-mint text-black border-2 border-border-base font-heading font-black text-xs uppercase px-4 py-2.5 shadow-[3px_3px_0px_0px_var(--border-color)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_var(--border-color)] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center gap-1.5 transition-all ${isSending ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-          >
-            {isSending ? 'TRANSMITTING...' : <>Transmit Packet <Send size={12} /></>}
-          </button>
-          <button
-            onClick={handleReset}
-            className="bg-pink text-black border-2 border-border-base font-heading font-black text-xs uppercase px-4 py-2.5 shadow-[3px_3px_0px_0px_var(--border-color)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_var(--border-color)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"
-          >
-            Abort / Redo
-          </button>
+          {isMinimal ? (
+            <>
+              <button
+                onClick={handleTransmit}
+                disabled={isSending}
+                className={`border border-[#3e4045] bg-[#3e4045] text-white hover:bg-white hover:text-black font-mono text-xs uppercase px-4 py-2.5 flex items-center gap-1.5 transition-all duration-200 ${isSending ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                {isSending ? 'TRANSMITTING...' : <>Transmit Packet <Send size={12} /></>}
+              </button>
+              <button
+                onClick={handleReset}
+                className="border border-[#3e4045] bg-transparent text-white hover:bg-[#3e4045] font-mono text-xs uppercase px-4 py-2.5 transition-all duration-200 cursor-pointer"
+              >
+                Abort / Redo
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                onClick={handleTransmit}
+                disabled={isSending}
+                className={`bg-mint text-black border-2 border-border-base font-heading font-black text-xs uppercase px-4 py-2.5 shadow-[3px_3px_0px_0px_var(--border-color)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_var(--border-color)] active:translate-x-1 active:translate-y-1 active:shadow-none flex items-center gap-1.5 transition-all ${isSending ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+              >
+                {isSending ? 'TRANSMITTING...' : <>Transmit Packet <Send size={12} /></>}
+              </button>
+              <button
+                onClick={handleReset}
+                className="bg-pink text-black border-2 border-border-base font-heading font-black text-xs uppercase px-4 py-2.5 shadow-[3px_3px_0px_0px_var(--border-color)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_var(--border-color)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"
+              >
+                Abort / Redo
+              </button>
+            </>
+          )}
         </div>
       )}
 
       {step === 4 && (
         <button
           onClick={handleReset}
-          className="self-start mt-2 bg-card-bg text-text-base border-2 border-border-base font-heading font-black text-xs uppercase px-4 py-2.5 shadow-[3px_3px_0px_0px_var(--border-color)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_var(--border-color)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer"
+          className={`self-start mt-2 px-4 py-2.5 font-mono text-xs uppercase transition-all duration-200 cursor-pointer ${
+            isMinimal
+              ? 'border border-[#3e4045] text-white hover:bg-[#3e4045]'
+              : 'bg-card-bg text-text-base border-2 border-border-base font-heading font-black shadow-[3px_3px_0px_0px_var(--border-color)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[1px_1px_0px_0px_var(--border-color)] active:translate-x-1 active:translate-y-1 active:shadow-none'
+          }`}
         >
           Start New Transmission
         </button>
       )}
 
       {/* Terminal status indicators */}
-      <div className="flex justify-between items-center mt-3 pt-3 border-t border-dashed border-border-base text-[10px] font-mono text-text-base opacity-60">
+      <div className={`flex justify-between items-center mt-3 pt-3 border-t border-dashed text-[9px] sm:text-[10px] font-mono ${
+        isMinimal ? 'border-[#3e4045] text-[#888c94]' : 'border-border-base text-text-base opacity-60'
+      }`}>
         <span>ENCRYPTION: SH-256</span>
         <span>STATUS: ACTIVE_TERMINAL</span>
       </div>

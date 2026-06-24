@@ -61,7 +61,7 @@ const TIMELINE_DATA = [
   }
 ];
 
-export default function ExperienceFrame() {
+export default function ExperienceFrame({ layoutMode }) {
   const [activeCategory, setActiveCategory] = useState('frontend');
   const [selectedSkill, setSelectedSkill] = useState(SKILLS_DATA.frontend[0]);
   const [selectedTimelineItem, setSelectedTimelineItem] = useState(0); // expand first item by default
@@ -78,6 +78,56 @@ export default function ExperienceFrame() {
       default: return <GraduationCap className="w-4 h-4" />;
     }
   };
+
+  if (layoutMode === 'minimal') {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 font-mono text-xs text-white">
+        {/* Left Column: Simple Skills List */}
+        <div className="flex flex-col gap-6">
+          <span className="text-[#888c94] text-[9px] tracking-widest font-bold">// CAPABILITIES</span>
+          <div className="flex flex-col gap-5">
+            {Object.entries(SKILLS_DATA).map(([category, skills]) => (
+              <div key={category} className="flex flex-col gap-2">
+                <span className="text-[#888c94] text-[9px] uppercase tracking-wider font-extrabold">
+                  {category === 'frontend' ? 'Coding & Frontend' : category === 'aiTools' ? 'AI Systems' : 'Technical & Hardware'}
+                </span>
+                <ul className="flex flex-col gap-1.5 pl-2">
+                  {skills.map((skill) => (
+                    <li key={skill.name} className="flex justify-between border-b border-[#3e4045] border-dashed pb-1">
+                      <span className="text-white">{skill.name}</span>
+                      <span className="text-[#888c94]">{skill.level}%</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Column: Simple Timeline List */}
+        <div className="flex flex-col gap-6">
+          <span className="text-[#888c94] text-[9px] tracking-widest font-bold">// JOURNEY LOGS</span>
+          <div className="flex flex-col gap-6">
+            {TIMELINE_DATA.map((item, idx) => (
+              <div key={idx} className="flex flex-col gap-1.5 border-l border-[#3e4045] pl-4 relative">
+                <span className="text-[#888c94] text-[9px] font-bold">{item.period}</span>
+                <h4 className="text-white font-extrabold uppercase text-xs">{item.role}</h4>
+                <span className="text-[#a1a1aa] font-bold text-[10px]">{item.company}</span>
+                <ul className="flex flex-col gap-1 mt-1">
+                  {item.details.map((detail, dIdx) => (
+                    <li key={dIdx} className="text-[#888c94] text-[10px] leading-relaxed relative pl-3 before:content-['-'] before:absolute before:left-0">
+                      {detail}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
